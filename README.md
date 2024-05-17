@@ -1,8 +1,6 @@
-# Ray-Tracer
+# Ray Tracer
 
 Ray-Tracer built for the Graphic Processing course @CIn - UFPE
-
-# Ray Tracer
 
 Este é um simples ray caster implementado em C++ usando a biblioteca glm.
 
