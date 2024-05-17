@@ -54,7 +54,7 @@ file_name.exe > output.ppm
 
 ## Como visualizar arquivos .ppm
 
-No windows o visualizador de fotos padrão não suporta visualização de arquivos .ppm então duas recomendações de aplicativos de terceiros para visualizar esses arquivos são :
+No windows, o visualizador de fotos padrão não suporta visualização de arquivos .ppm. Duas recomendações de aplicativos de terceiros para visualizar esses arquivos são:
 
 1 - [IrfanView](https://www.irfanview.com/)
 
