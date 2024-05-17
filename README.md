@@ -28,18 +28,6 @@ Este é um simples ray caster implementado em C++ usando a biblioteca glm.
     ./ray_tracer > output.ppm
     ```
 
-ou no Windows :
-
-**Opção: PowerShell**
-```powershell
-.\file_name.exe > output.ppm
-
-### Comando para gerar o arquivo .ppm linux (ou git bash no windows):
-
-```bash
-./filename.out > output.ppm
-```
-
 ### ou no Windows :
 
 ```bash
