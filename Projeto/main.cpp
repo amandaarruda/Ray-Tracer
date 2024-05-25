@@ -8,6 +8,7 @@
 #include "./Includes/hitable_list.h"
 #include "./Includes/plane.h"
 #include "./Includes/camera.h"
+#include "./Includes/trianglemesh.h"  // Adiciona o include do trianglemesh
 #include <cmath>
 #include "float.h"
 
@@ -41,14 +42,70 @@ int main() {
     glm::vec3 vup(0.0f, 1.0f, 0.0f);  // Vetor de "up" da câmera
     float distance = 0.3f;  // Distância entre a câmera e o plano da imagem
 
-    // Cria uma lista de objetos hitable, incluindo duas esferas e dois planos
-    hitable* list[4];
-    list[0] = new sphere(glm::vec3(0, 0, -1), 0.5, red);
-    list[1] = new sphere(glm::vec3(0, -100.5, -1), 100, green);
+    // Cria uma lista de objetos hitable, incluindo duas esferas, dois planos e duas malhas
+    hitable* list[5];
+    list[0] = new sphere(glm::vec3(5, 0, -6), 2, red);
+    list[1] = new sphere(glm::vec3(5, -2, -6), 2.5, green);
     list[2] = new plane(glm::vec3(0, 0, -5), glm::vec3(0, 0, 1), blue);
-    list[3] = new plane(glm::vec3(0, 0, 0), glm::vec3(0, -1, 0), blue);
-    hitable* world = new hitable_list(list, 4);  // Cria um mundo contendo todos os objetos hitable
 
+
+
+    int v_losango = 6;  // Quantidade de vértices na mesh
+    int t_losango = 8;  // Quantidade de triângulos na mesh
+
+    // Lista de vértices dos triângulos
+
+    glm::vec3 pontos_losango[v_losango] = {
+        glm::vec3(0.0f, 0.0f, 1.0f - 1.0f),
+        glm::vec3(1.0f, 0.0f, 0.0f - 1.5f), // Right one
+        glm::vec3(0.0f, 1.0f, 0.0f - 2.0f), // Top one
+        glm::vec3(-1.0f, 0.0f, 0.0f - 2.5f),
+        glm::vec3(0.0f, -1.0f, 0.0f - 2.0f),
+        glm::vec3(0.0f, 0.0f, -1.0f - 2.0f)
+    };
+
+    // Lista com triplas de índices de vértices do losango
+    triple vertices_index_losango[t_losango] = {
+        triple(0, 1, 2),
+        triple(0, 2, 3),
+        triple(0, 3, 4),
+        triple(0, 4, 1),
+        triple(1, 2, 5),
+        triple(2, 3, 5),
+        triple(3, 4, 5),
+        triple(4, 1, 5)  
+    };
+
+    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, green + red);
+    list[3] = losango_mesh;  // add losango na mesh
+
+    // Segunda mesh é uma pirâmide simples
+    int v_piramide = 5;  // Quantidade de vértices na mesh
+    int t_piramide = 6;  // Quantidade de triângulos na mesh
+    // Lista de vértices dos triângulos
+    glm::vec3 pontos_piramide[v_piramide] = {
+        glm::vec3(-2.5 , 2, -3),
+        glm::vec3(-3 , -1, -4),
+        glm::vec3(-1, -1, -4),
+        glm::vec3(-1, -1, -2),
+        glm::vec3(-3, -1, -2)
+    };
+    // Lista com triplas de índices de vértices
+    triple vertices_index_piramide[t_piramide] = {
+        triple(0, 1, 2),
+        triple(0, 2, 3),
+        triple(0, 3, 4),
+        triple(0, 4, 1),
+        triple(1, 2, 3),
+        triple(1, 3, 4)
+    };
+
+    tmesh* triangulos_2 = new tmesh(v_piramide, t_piramide, pontos_piramide, vertices_index_piramide, blue + green);
+    list[4] = triangulos_2;  // Adiciona a segunda malha à lista
+    
+    // Cria o mundo com a lista de objetos
+    hitable* world = new hitable_list(list, 5);
+    
     camera cam(origin, lookingat, vup, ny, nx, distance);  // Cria uma câmera
 
     // Loop para gerar a imagem linha por linha
