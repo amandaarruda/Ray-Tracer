@@ -8,7 +8,7 @@
 #include "./Includes/hitable_list.h"
 #include "./Includes/plane.h"
 #include "./Includes/camera.h"
-#include "./Includes/trianglemesh.h"  // Adiciona o include do trianglemesh
+#include "./Includes/trianglemesh.h" 
 #include <cmath>
 #include "float.h"
 
@@ -44,6 +44,7 @@ int main() {
 
     // Cria uma lista de objetos hitable, incluindo duas esferas, dois planos e duas malhas
     hitable* list[5];
+
     list[0] = new sphere(glm::vec3(5, 0, -6), 2, red);
     list[1] = new sphere(glm::vec3(5, -2, -6), 2.5, green);
     list[2] = new plane(glm::vec3(0, 0, -5), glm::vec3(0, 0, 1), blue);
@@ -84,6 +85,7 @@ int main() {
     int t_piramide = 6;  // Quantidade de triângulos na mesh
     // Lista de vértices dos triângulos
     glm::vec3 pontos_piramide[v_piramide] = {
+
         glm::vec3(-2.5 , 2, -3),
         glm::vec3(-3 , -1, -4),
         glm::vec3(-1, -1, -4),
