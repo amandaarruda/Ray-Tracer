@@ -9,9 +9,9 @@
 #include "./Includes/plane.h"
 #include "./Includes/camera.h"
 #include "./Includes/trianglemesh.h" 
+#include "./Includes/transform.h"
 #include <cmath>
 #include "float.h"
-
 #define M_PI 3.14159265358979323846  // Define a constante M_PI como o valor de pi
 
 // Define uma cor vermelha, verde e azul normalizada
@@ -43,13 +43,29 @@ int main() {
     float distance = 0.3f;  // Distância entre a câmera e o plano da imagem
 
     // Cria uma lista de objetos hitable, incluindo duas esferas, dois planos e duas malhas
-    hitable* list[5];
+    hitable* list[6];
 
     list[0] = new sphere(glm::vec3(5, 0, -6), 2, red);
     list[1] = new sphere(glm::vec3(5, -2, -6), 2.5, green);
     list[2] = new plane(glm::vec3(0, 0, -5), glm::vec3(0, 0, 1), blue);
 
 
+    // Plano afetado pela Transformação Afim
+    glm::vec3 eulerAngles(0.0f, 0.0f, glm::radians(-10.0f)); // Indicando rotação de -10° no eixo Z
+
+    Transform transform;
+    transform.setTransformationMatrix(eulerAngles);
+
+    glm::vec3 posVetor = glm::vec3(0, -3, 0);
+    glm::vec3 normalVetor = glm::vec3(0, 1, 0);
+
+    glm::vec3 newNormal = transform.applyTransformation(normalVetor);
+    glm::vec3 newPoint = transform.applyTransformation(posVetor);
+
+    //
+
+
+    list[3] = new plane(newPoint, newNormal, red);
 
     int v_losango = 6;  // Quantidade de vértices na mesh
     int t_losango = 8;  // Quantidade de triângulos na mesh
@@ -78,7 +94,7 @@ int main() {
     };
 
     tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, green + red);
-    list[3] = losango_mesh;  // add losango na mesh
+    list[4] = losango_mesh;  // add losango na mesh
 
     // Segunda mesh é uma pirâmide simples
     int v_piramide = 5;  // Quantidade de vértices na mesh
@@ -103,10 +119,10 @@ int main() {
     };
 
     tmesh* triangulos_2 = new tmesh(v_piramide, t_piramide, pontos_piramide, vertices_index_piramide, blue + green);
-    list[4] = triangulos_2;  // Adiciona a segunda malha à lista
+    list[5] = triangulos_2;  // Adiciona a segunda malha à lista
     
     // Cria o mundo com a lista de objetos
-    hitable* world = new hitable_list(list, 5);
+    hitable* world = new hitable_list(list, 6);
     
     camera cam(origin, lookingat, vup, ny, nx, distance);  // Cria uma câmera
 
