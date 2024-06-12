@@ -10,7 +10,7 @@ public:
     Transform();
     
     // Método para modificar a matriz baseada nos ângulos informados
-    void setTransformationMatrix(const glm::vec3& eulerAngles);
+    void setTransformationMatrix(const glm::vec3& eulerAngles, const glm::vec3& translation);
 
     // Método para retornar o vetor multiplicado pela matriz de transformação
     glm::vec3 applyTransformation(const glm::vec3& vec) const;
