@@ -45,16 +45,21 @@ int main() {
     // Cria uma lista de objetos hitable, incluindo duas esferas, dois planos e duas malhas
     hitable* list[6];
 
-    list[0] = new sphere(glm::vec3(5, 0, -6), 2, red);
+    //
+    Transform transform;
+    transform.setTransformationMatrix( glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0, 0.5f, 0)); // Translação
+
+    glm::vec3 centerRedSphere(5, 0, -6);
+
+    list[0] = new sphere(transform.applyTransformation(centerRedSphere), 2, red);
     list[1] = new sphere(glm::vec3(5, -2, -6), 2.5, green);
     list[2] = new plane(glm::vec3(0, 0, -5), glm::vec3(0, 0, 1), blue);
 
 
     // Plano afetado pela Transformação Afim
-    glm::vec3 eulerAngles(0.0f, 0.0f, glm::radians(-10.0f)); // Indicando rotação de -10° no eixo Z
+    glm::vec3 eulerAngles(0.0f, 0.0f, glm::radians(10.0f)); // Indicando rotação de 10° no eixo Z
 
-    Transform transform;
-    transform.setTransformationMatrix(eulerAngles);
+    transform.setTransformationMatrix(eulerAngles, glm::vec3(0, 0, 0));
 
     glm::vec3 posVetor = glm::vec3(0, -3, 0);
     glm::vec3 normalVetor = glm::vec3(0, 1, 0);
