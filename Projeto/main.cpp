@@ -10,9 +10,20 @@
 #include "./Includes/camera.h"
 #include "./Includes/trianglemesh.h" 
 #include "./Includes/transform.h"
+#include "./Includes/material.h"
 #include <cmath>
 #include "float.h"
 #define M_PI 3.14159265358979323846  // Define a constante M_PI como o valor de pi
+
+using std::vector;
+
+// Materiais básicos de teste
+// "matte" significa fosco e sem brilho
+// glossy, com muito brilho
+//                               d     a     s     r     t     n 
+material* matte = new material(0.8f, 0.1f, 0.1f, 0.0f, 0.0f, 1.0f);
+material* glossy = new material(0.8f, 0.1f, 0.9f, 0.0f, 0.0f, 50.0f);
+
 
 // Define uma cor vermelha, verde e azul normalizada
 const color red = glm::vec3(255.99, 0.0, 0.0);
@@ -51,9 +62,9 @@ int main() {
 
     glm::vec3 centerRedSphere(5, 0, -6);
 
-    list[0] = new sphere(transform.applyTransformation(centerRedSphere), 2, red);
-    list[1] = new sphere(glm::vec3(5, -2, -6), 2.5, green);
-    list[2] = new plane(glm::vec3(0, 0, -5), glm::vec3(0, 0, 1), blue);
+    list[0] = new sphere(transform.applyTransformation(centerRedSphere), 2, red, matte);
+    list[1] = new sphere(glm::vec3(5, -2, -6), 2.5, green, matte);
+    list[2] = new plane(glm::vec3(0, 0, -5), glm::vec3(0, 0, 1), blue, matte);
 
 
     // Plano afetado pela Transformação Afim
@@ -70,7 +81,7 @@ int main() {
     //
 
 
-    list[3] = new plane(newPoint, newNormal, red);
+    list[3] = new plane(newPoint, newNormal, red, matte);
 
     int v_losango = 6;  // Quantidade de vértices na mesh
     int t_losango = 8;  // Quantidade de triângulos na mesh
@@ -98,7 +109,7 @@ int main() {
         triple(4, 1, 5)  
     };
 
-    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, green + red);
+    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, green + red, matte);
     list[4] = losango_mesh;  // add losango na mesh
 
     // Segunda mesh é uma pirâmide simples
@@ -123,7 +134,7 @@ int main() {
         triple(1, 3, 4)
     };
 
-    tmesh* triangulos_2 = new tmesh(v_piramide, t_piramide, pontos_piramide, vertices_index_piramide, blue + green);
+    tmesh* triangulos_2 = new tmesh(v_piramide, t_piramide, pontos_piramide, vertices_index_piramide, blue + green, matte);
     list[5] = triangulos_2;  // Adiciona a segunda malha à lista
     
     // Cria o mundo com a lista de objetos
