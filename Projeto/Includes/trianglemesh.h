@@ -11,7 +11,7 @@ using triple = std::tuple<int, int, int>; // Define um alias para uma tupla de t
 class tmesh : public hitable {
 public:
     // Construtor
-    tmesh(int n_vertices, int n_triangulos, glm::vec3 vertices[], triple vertices_index[], color cor);
+    tmesh(int n_vertices, int n_triangulos, glm::vec3 vertices[], triple vertices_index[], color cor, material* om);
 
     // Método para verificar se um raio atinge a malha de triângulos
     virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
@@ -20,6 +20,7 @@ public:
     int n_triangulos; // Número total de triângulos na malha
     std::vector<triangle> triangulos; // Lista de triângulos que compõem a malha
     color cor; // Cor da malha de triângulos
+    material* objMaterial;
 };
 
 #endif

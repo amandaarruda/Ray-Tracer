@@ -12,6 +12,9 @@ public:
     // Método para obter um raio que passa pelo ponto (s, t) no plano da imagem
     ray get_ray(float s, float t);
 
+    // Método para obter a origem da câmera
+    glm::vec3 get_origin() const { return origem; }
+
 private:
     glm::vec3 origem;  // Ponto de origem da câmera
     glm::vec3 lower_left_corner;  // Canto inferior esquerdo do plano da imagem

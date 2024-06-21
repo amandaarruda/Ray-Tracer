@@ -10,7 +10,7 @@ class triangle: public hitable {
     public:
     // Construtores
         triangle() {}
-        triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 color); // Construtor com parâmetros
+        triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 color, material* om); // Construtor com parâmetros
         
         // Método para verificar se um raio atinge o triângulo
         virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
@@ -26,6 +26,7 @@ class triangle: public hitable {
         glm::vec3 hb;  // Inverso da altura do ponto B
         glm::vec3 hc;  // Inverso da altura do ponto C
 
+        material* objMaterial;
 };
 
 
