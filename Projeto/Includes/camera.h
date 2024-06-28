@@ -10,7 +10,7 @@ public:
     camera(glm::vec3 lookfrom, glm::vec3 lookat, glm::vec3 vup, float vres, float hres, float dist);
 
     // Método para obter um raio que passa pelo ponto (s, t) no plano da imagem
-    ray get_ray(float s, float t);
+    ray get_ray(float s, float t) const;
 
 private:
     glm::vec3 origem;  // Ponto de origem da câmera
@@ -21,4 +21,3 @@ private:
 };
 
 #endif  // Fecha a diretiva de pré-processador
-
