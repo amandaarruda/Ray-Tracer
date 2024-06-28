@@ -24,7 +24,6 @@ camera::camera(glm::vec3 lookfrom, glm::vec3 lookat, glm::vec3 vup, float vres, 
 }
 
 // Método para obter um raio que passa pelo ponto (s, t) no plano da imagem
-ray camera::get_ray(float s, float t) {
+ray camera::get_ray(float s, float t) const {
     return ray(origem, lower_left_corner + s * horizontal + t * vertical - origem);  // Retorna um raio que passa pelo ponto (s, t) no plano da imagem
 }
-
