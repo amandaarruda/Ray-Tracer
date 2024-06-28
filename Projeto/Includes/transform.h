@@ -1,21 +1,23 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
-#include "../../External/glm/glm.hpp"
-#include "../../External/glm/gtc/matrix_transform.hpp"
+
+#include <array>
+
 class Transform {
 public:
-    // Construtor vazio
-    Transform();
+    Transform();  // Construtor que inicializa a matriz de transformação como uma matriz identidade 4x4.
 
-    // Método para modificar a matriz baseada nos ângulos informados
-    void setTransformationMatrix(const glm::vec3& eulerAngles, const glm::vec3& translation);
-
-    // Método para retornar o vetor multiplicado pela matriz de transformação
-    glm::vec3 applyTransformation(const glm::vec3& vec) const;
+    // Define a matriz de transformação com base nos ângulos de Euler para rotação e um vetor de translação.
+    void setTransformationMatrix(const std::array<float, 3>& eulerAngles, const std::array<float, 3>& translation);
     
-    // Método para retornar a atual matriz de transformação
-    glm::mat4 getTransformationMatrix() const;
+    // Aplica a transformação definida a um vetor 3D e retorna o vetor transformado.
+    std::array<float, 3> applyTransformation(const std::array<float, 3>& vec) const;
+    
+    // Retorna a matriz de transformação atual.
+    std::array<std::array<float, 4>, 4> getTransformationMatrix() const;
+
 private:
-    glm::mat4 transformationMatrix; // Definindo a matriz de transformação
+    std::array<std::array<float, 4>, 4> transformationMatrix;  // Matriz de transformação 4x4.
 };
+
 #endif
