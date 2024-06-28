@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "../External/glm/glm.hpp"
-#include "../External/glm/gtc/matrix_transform.hpp"
+#include <array>
 #include "./Includes/ray.h"
 #include "./Includes/color.h"
 #include "./Includes/hitable.h"
@@ -66,25 +65,25 @@ int main() {
 
     // Transformação inicial para transladar a esfera vermelha
     Transform transform;
-    transform.setTransformationMatrix(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0, 0.5f, 0)); // Translação
+    transform.setTransformationMatrix({0.0f, 0.0f, 0.0f}, {0, 0.5f, 0}); // Translação
 
-    glm::vec3 centerRedSphere(5, 0, -6);
-    list[0] = new sphere(transform.applyTransformation(centerRedSphere), 2, red); // Esfera vermelha transladada
+    std::array<float, 3> centerRedSphere = {5, 0, -6};
+    std::array<float, 3> transformedCenterRedSphere = transform.applyTransformation(centerRedSphere);
+    list[0] = new sphere(glm::vec3(transformedCenterRedSphere[0], transformedCenterRedSphere[1], transformedCenterRedSphere[2]), 2, red); // Esfera vermelha transladada
 
     list[1] = new sphere(glm::vec3(5, -2, -6), 2.5, green); // Segunda esfera verde
 
     list[2] = new plane(glm::vec3(0, 0, -5), glm::vec3(0, 0, 1), blue); // Plano azul no fundo
 
     // Plano afetado pela Transformação Afim
-    glm::vec3 eulerAngles(0.0f, 0.0f, glm::radians(10.0f)); // Indicando rotação de 10° no eixo Z
+    std::array<float, 3> eulerAngles = {0.0f, 0.0f, glm::radians(10.0f)}; // Indicando rotação de 10° no eixo Z
+    transform.setTransformationMatrix(eulerAngles, {0, 0, 0});
 
-    transform.setTransformationMatrix(eulerAngles, glm::vec3(0, 0, 0));
-
-    glm::vec3 posVetor = glm::vec3(0, -3, 0);
-    glm::vec3 normalVetor = glm::vec3(0, 1, 0);
-    glm::vec3 newNormal = transform.applyTransformation(normalVetor);
-    glm::vec3 newPoint = transform.applyTransformation(posVetor);
-    list[3] = new plane(newPoint, newNormal, red); // Plano vermelho transformado
+    std::array<float, 3> posVetor = {0, -3, 0};
+    std::array<float, 3> normalVetor = {0, 1, 0};
+    std::array<float, 3> newNormal = transform.applyTransformation(normalVetor);
+    std::array<float, 3> newPoint = transform.applyTransformation(posVetor);
+    list[3] = new plane(glm::vec3(newPoint[0], newPoint[1], newPoint[2]), glm::vec3(newNormal[0], newNormal[1], newNormal[2]), red); // Plano vermelho transformado
 
     int v_losango = 6;  // Quantidade de vértices na mesh do losango
     int t_losango = 8;  // Quantidade de triângulos na mesh do losango
@@ -151,11 +150,11 @@ int main() {
     render_image("output_before.ppm", world, cam, nx, ny);  // Renderiza a imagem antes da transformação
 
     // Aplica uma transformação adicional e renderiza novamente
-    eulerAngles = glm::vec3(0.0f, 0.0f, glm::radians(45.0f)); // Rotação de 45 graus no eixo Z
-    transform.setTransformationMatrix(eulerAngles, glm::vec3(0.0f, 1.0f, 0.0f)); // Translação para cima
+    eulerAngles = {0.0f, 0.0f, glm::radians(45.0f)}; // Rotação de 45 graus no eixo Z
+    transform.setTransformationMatrix(eulerAngles, {0.0f, 1.0f, 0.0f}); // Translação para cima
     newNormal = transform.applyTransformation(normalVetor);
     newPoint = transform.applyTransformation(posVetor);
-    list[3] = new plane(newPoint, newNormal, red); // Atualiza o plano transformado
+    list[3] = new plane(glm::vec3(newPoint[0], newPoint[1], newPoint[2]), glm::vec3(newNormal[0], newNormal[1], newNormal[2]), red); // Atualiza o plano transformado
 
     std::cout << "Rendering image after transformation..." << std::endl;
     render_image("output_after.ppm", world, cam, nx, ny);  // Renderiza a imagem após a transformação
