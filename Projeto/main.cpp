@@ -23,16 +23,26 @@ using std::vector;
 // "matte" significa fosco e sem brilho
 // glossy, com muito brilho
 //                               d     a     s     r     t     n 
-material* matte = new material(0.8f, 0.1f, 0.1f, 0.0f, 0.0f, 1.0f);
-material* glossy = new material(0.8f, 0.1f, 0.9f, 0.0f, 0.0f, 50.0f);
+material* matte = new material(0.8f, 0.8f, 0.1f, 0.0f, 0.1f, 10.0f);
+material* glossy = new material(0.8f, 0.1f, 0.9f, 0.8f, 0.0f, 50.0f);
+
+material* glass = new material(0.8f, 0.2f, 0.9f, 0.1f, 0.9f, 0.0f);
+
+material* mattePlane = new material(0.2f, 0.1f, 0.1f, 0.0f, 0.0f, 1.0f);
+material* glossyPlane = new material(0.8f, 0.2f, 0.5f, 0.3f, 0.0f, 30.0f);
+
 
 // Luzes de cena
 // Luz ambiente branca e pontos de luz local
 color white = color(1,1,1);
-Environment* ambientLight = new Environment(color(0.5f, 0.5f, 0.5f));
+color blueColor = color(0,0,1);
 
-Light* light_point1 = new Light(glm::vec3(4,0,-2),white);
-Light* light_point2 = new Light(glm::vec3(-3,1,-1),white);
+Environment* ambientLight = new Environment(color(0.2f, 0.2f, 0.2f));
+
+Light* light_point1 = new Light(glm::vec3(3,0,-2 -1),white);
+Light* light_point2 = new Light(glm::vec3(-9, 4,-2 -1),white);
+
+
 
 vector<Light*> scene_lights;
 
@@ -40,6 +50,9 @@ vector<Light*> scene_lights;
 const color red = glm::vec3(255.99, 0.0, 0.0);
 const color green = glm::vec3(0.0, 255.99, 0.0);
 const color blue = glm::vec3(0.0, 0.0, 255.99);
+
+const color slate = glm::vec3(0.5, 0.5, 0.5);
+
 
 vec3 phong(hit_record rec, color amb_light, vector<Light*> point_lights, vec3 viewer_pos){
 
@@ -89,14 +102,28 @@ vec3 phong(hit_record rec, color amb_light, vector<Light*> point_lights, vec3 vi
 
 
 // Função para calcular a cor de um raio, dependendo se ele atinge algum objeto no mundo ou não
-color ray_color(const ray& r, hitable *world, vec3 cam_position)
+color ray_color(const ray& r, hitable *world, vec3 cam_position, int depth)
 {
     hit_record rec;
-    if(world->hit(r, 0.0f, FLT_MAX, rec)){  // Testa se o raio atinge algum objeto no mundo
-    // Se o raio atingiu um objeto no mundo, calcula a iluminação de Phong com base nos parâmetros do material do objeto,
-    // usando a luz ambiente, as luzes da cena e a posição da câmera.
-    return phong(rec, ambientLight->getAmbientLight(), scene_lights, cam_position);
-}
+    if (world->hit(r, 0.001f, FLT_MAX, rec)) {
+        vec3 phong_color = phong(rec, ambientLight->getAmbientLight(), scene_lights, cam_position);
+
+        if (depth < 3) {
+            // Reflexão
+            vec3 reflected_dir = reflect(normalize(r.direction()), rec.normal);
+            ray reflected_ray(rec.p, reflected_dir);
+            phong_color += rec.kref * ray_color(reflected_ray, world, cam_position, depth + 1);
+
+            // Refração (opcional)
+            if (rec.ktrans > 0.0f) {
+                vec3 refracted_dir = refract(normalize(r.direction()), rec.normal, rec.ktrans);
+                ray refracted_ray(rec.p, refracted_dir);
+                phong_color += rec.ktrans * ray_color(refracted_ray, world, cam_position, depth + 1);
+            }
+        }
+
+        return phong_color;
+    }
 
     color backgroundColor = glm::vec3(0.0,0.0,0.0); // Cor preta para o background
     return backgroundColor;  // Retorna a cor de fundo se o raio não atingir nenhum objeto
@@ -120,17 +147,17 @@ int main() {
     Transform transform;
     transform.setTransformationMatrix( glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0, 0.5f, 0)); // Translação
 
-    glm::vec3 centerRedSphere(5, 0, -6);
+    glm::vec3 centerRedSphere(5, 1, -6);
 
     list[0] = new sphere(transform.applyTransformation(centerRedSphere), 2, red, glossy);
-    list[1] = new sphere(glm::vec3(5, -2, -6), 2.5, green, glossy);
-    list[2] = new plane(glm::vec3(0, 0, -5), glm::vec3(0, 0, 1), blue, glossy);
+    list[1] = new sphere(glm::vec3(5, -1.0, -6), 2.5, green, glossy);
+    list[2] = new plane(glm::vec3(0, 0, -20), glm::vec3(0, 0, 1), slate, mattePlane);
 
 
     // Plano afetado pela Transformação Afim
-    glm::vec3 eulerAngles(0.0f, 0.0f, glm::radians(10.0f)); // Indicando rotação de 10° no eixo Z
+    glm::vec3 eulerAngles(0.0f, 0.0f, glm::radians(1.0f)); // Indicando rotação de 1° no eixo Z
 
-    transform.setTransformationMatrix(eulerAngles, glm::vec3(0, 0, 0));
+    transform.setTransformationMatrix(eulerAngles, glm::vec3(0, -0.1, 0));
 
     glm::vec3 posVetor = glm::vec3(0, -3, 0);
     glm::vec3 normalVetor = glm::vec3(0, 1, 0);
@@ -141,7 +168,7 @@ int main() {
     //
 
 
-    list[3] = new plane(newPoint, newNormal, red, matte);
+    list[3] = new plane(newPoint, newNormal, slate, glossyPlane);
 
     int v_losango = 6;  // Quantidade de vértices na mesh
     int t_losango = 8;  // Quantidade de triângulos na mesh
@@ -169,7 +196,7 @@ int main() {
         triple(4, 1, 5)  
     };
 
-    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, green + red, glossy);
+    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, green + red, glass);
     list[4] = losango_mesh;  // add losango na mesh
 
     // Segunda mesh é uma pirâmide simples
@@ -178,11 +205,11 @@ int main() {
     // Lista de vértices dos triângulos
     glm::vec3 pontos_piramide[v_piramide] = {
 
-        glm::vec3(-2.5 , 2, -3),
-        glm::vec3(-3 , -1, -4),
-        glm::vec3(-1, -1, -4),
-        glm::vec3(-1, -1, -2),
-        glm::vec3(-3, -1, -2)
+        glm::vec3(-2.5 -0.5 , 2, -3),
+        glm::vec3(-3 -0.5, -1, -4),
+        glm::vec3(-1 -0.5, -1, -4),
+        glm::vec3(-1 -0.5, -1, -2),
+        glm::vec3(-3 -0.5, -1, -2)
     };
     // Lista com triplas de índices de vértices
     triple vertices_index_piramide[t_piramide] = {
@@ -194,7 +221,7 @@ int main() {
         triple(1, 3, 4)
     };
 
-    tmesh* triangulos_2 = new tmesh(v_piramide, t_piramide, pontos_piramide, vertices_index_piramide, blue + green, glossy);
+    tmesh* triangulos_2 = new tmesh(v_piramide, t_piramide, pontos_piramide, vertices_index_piramide, blue + green, matte);
     list[5] = triangulos_2;  // Adiciona a segunda malha à lista
     
     // Cria o mundo com a lista de objetos
@@ -202,6 +229,7 @@ int main() {
 
     scene_lights.push_back(light_point1);
     scene_lights.push_back(light_point2);
+
     
     camera cam(origin, lookingat, vup, ny, nx, distance);  // Cria uma câmera
 
@@ -211,7 +239,7 @@ int main() {
             float u = float(i) / float(nx);  // Coordenada u do pixel normalizada
             float v = float(j) / float(ny);  // Coordenada v do pixel normalizada
             ray r = cam.get_ray(u, v);  // Obtém o raio correspondente ao pixel na câmera
-            color pixel_color = ray_color(r, world, cam.get_origin()); // Calcula a cor do raio
+            color pixel_color = ray_color(r, world, cam.get_origin(), 0); // Calcula a cor do raio
             write_color(std::cout, pixel_color);  // Escreve a cor no arquivo PPM
         }
     }

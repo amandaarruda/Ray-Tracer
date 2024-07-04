@@ -48,6 +48,13 @@ bool triangle::hit(const ray &r, float t_min, float t_max, hit_record &rec) cons
         if (alpha >= 0 && beta >= 0 && gamma >= 0) {
             rec.t = t;
             rec.p = p;
+
+            // Verifica a direção da normal em relação ao raio
+            glm::vec3 normal = this->normal;
+            if (glm::dot(normal, r.direction()) > 0) {
+                normal = -normal;
+            }
+
             // Parâmetro t e ponto de interseção são atualizados
             rec.normal = normal; // Define o vetor normal ao ponto de interseção
             rec.cor = cor; // Define a cor do triângulo
