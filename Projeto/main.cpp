@@ -26,11 +26,12 @@ using std::vector;
 material* matte = new material(0.8f, 0.5f, 0.1f, 0.0f, 0.1f, 10.0f);
 material* glossy = new material(0.9f, 0.1f, 0.9f, 0.8f, 0.0f, 50.0f);
 
-material* glass = new material(0.1f, 0.2f, 0.9f, 0.1f, 0.9f, 1.0f);
-
+// Glass: Material com alto índice de refração
+// Mirror: Material com alto índice de reflexão
+material* glass = new material(0.1f, 0.2f, 0.1f, 0.1f, 1.0f, 1.0f);
 material* mirror = new material(0.01f, 0.1f, 0.5f, 1.0f, 0.1f, 10.0f);
 
-
+// Materiais Matt e Glossy personalizados para os planos
 material* mattePlane = new material(0.2f, 0.1f, 0.1f, 0.0f, 0.0f, 1.0f);
 material* glossyPlane = new material(0.8f, 0.1f, 0.5f, 0.3f, 0.0f, 30.0f);
 
@@ -39,18 +40,10 @@ material* glossyPlane = new material(0.8f, 0.1f, 0.5f, 0.3f, 0.0f, 30.0f);
 // Luz ambiente branca e pontos de luz local
 color white = color(1,1,1);
 
-color dimLightColor = color(0.1,0.1,0.1);
+Environment* ambientLight = new Environment(color(0.1f, 0.1f, 0.1f));
 
-
-color gray = color(0.3,0.3,0.3);
-
-
-Environment* ambientLight = new Environment(color(0.5f, 0.5f, 0.5f));
-
-Light* light_point1 = new Light(glm::vec3(6,0,-2 -1),white);
-Light* light_point2 = new Light(glm::vec3(-9, 4,-2 -1),white);
-
-
+Light* light_point1 = new Light(glm::vec3(6,0,0 -1),white);
+Light* light_point2 = new Light(glm::vec3(-9, 0,-2 -1),white);
 
 vector<Light*> scene_lights;
 
@@ -59,11 +52,7 @@ const color red = glm::vec3(255.99, 0.0, 0.0);
 const color green = glm::vec3(0.0, 255.99, 0.0);
 const color blue = glm::vec3(0.0, 0.0, 255.99);
 
-const color marineBlue = glm::vec3(0.0, 0.0, 120);
-
-
-
-const color whiteMaterial = glm::vec3(255.99, 255.99, 255.99);
+// Cores extras
 const color slate = glm::vec3(0.5, 0.5, 0.5);
 const color black = glm::vec3(0.01, 0.01, 0.01);
 
@@ -91,8 +80,8 @@ vec3 phong(hit_record rec, color amb_light, vector<Light*> point_lights, vec3 vi
         // Vetor V vai do ponto de interseção até a posição do observador (câmera)
         vec3 V = normalize(viewer_pos - rec.p);
 
-        // Vetor R é o vetor de reflexão
-        vec3 R = 2.0f * rec.normal * glm::dot(rec.normal, L) - L;
+        // Vetor R é o vetor de reflexão, sendo 2.N (N. L) - L 
+        vec3 R = 2.0f * (rec.normal * glm::dot(rec.normal, L)) - L; 
 
         // O produto (R . V) da equação de Phong
         float specular_dot = glm::dot(R, V);
@@ -136,9 +125,6 @@ color ray_color(const ray& r, hitable *world, vec3 cam_position, int depth)
         vec3 phong_color = phong(rec, ambientLight->getAmbientLight(), scene_lights, cam_position);
 
         if (depth < 5) {
-            // vec3 reflected_dir = reflect(normalize(r.direction()), rec.normal);
-            // ray reflected_ray(rec.p, reflected_dir);
-            // phong_color += rec.kref * ray_color(reflected_ray, world, cam_position, depth + 1);
             // Reflexão (Manualmente)
             vec3 V = normalize(r.direction());
             vec3 N = rec.normal;
@@ -148,7 +134,18 @@ color ray_color(const ray& r, hitable *world, vec3 cam_position, int depth)
 
             // Refração (Com Snells Formula)
             if (rec.ktrans > 0.0f) {
-                vec3 refracted_dir = snells_refract(normalize(r.direction()), rec.normal, rec.ktrans);
+                vec3 refracted_dir;
+                float eta = rec.ktrans; // Índice de refração
+                float cos_i = glm::dot(-V, N);
+
+                if (cos_i > 0) {
+                    // Raio entrando no objeto
+                    refracted_dir = snells_refract(V, N, eta);
+                } else {
+                    // Raio saindo do objeto, inverter o índice de refração
+                    refracted_dir = snells_refract(V, -N, 1.0f / eta);
+                }
+
                 ray refracted_ray(rec.p, refracted_dir);
                 phong_color += rec.ktrans * ray_color(refracted_ray, world, cam_position, depth + 1);
             }
@@ -182,7 +179,7 @@ int main() {
     glm::vec3 centerRedSphere(5, 1, -6);
 
     list[0] = new sphere(transform.applyTransformation(centerRedSphere), 2, red, glossy);
-    list[1] = new sphere(glm::vec3(5, -1.0, -6), 2.5, green, glossy);
+    list[1] = new sphere(glm::vec3(5, -1.0, -6), 2.5, green, glass);
     list[2] = new plane(glm::vec3(0, 0, -20), glm::vec3(0, 0, 1), slate, mattePlane);
 
 
@@ -206,25 +203,25 @@ int main() {
     int v_losango = 6;  // Quantidade de vértices na mesh
     int t_losango = 8;  // Quantidade de triângulos na mesh
 
-    // Losango position - FRONT
-    glm::vec3 pontos_losango[v_losango] = {
-        glm::vec3(-0.005f, 0.0f, 1.0f - 1.1f), // Front one?
-        glm::vec3(1.0f, 0.0f, 0.0f - 1.5f), // Right one
-        glm::vec3(0.0f, 1.0f, 0.0f - 2.0f), // Top one
-        glm::vec3(-1.0f, 0.0f, 0.0f - 2.5f), // Left one
-        glm::vec3(0.0f, -1.0f, 0.0f - 2.0f), // Bottom one
-        glm::vec3(0.005f, 0.0f, -1.1f - 1.0f)
-    };
-
-    // Losango position - BACK
+    //Losango position - FRONT
     // glm::vec3 pontos_losango[v_losango] = {
-    //     glm::vec3(-0.005f, 0.0f + 0.5, 1.0 - 1.1f - 3.0), // Front one?
-    //     glm::vec3(1.0f, 0.0f + 0.5, 0.0f - 1.5f - 3.0), // Right one
-    //     glm::vec3(0.0f, 1.0f + 0.5, 0.0f - 2.0f - 3.0), // Top one
-    //     glm::vec3(-1.0f, 0.0f + 0.5, 0.0f - 2.5f - 3.0), // Left one
-    //     glm::vec3(0.0f, -1.0f + 0.5, 0.0f - 2.0f - 3.0), // Bottom one
-    //     glm::vec3(0.005f, 0.0f + 0.5, -1.1f - 1.0f - 3.0)
+    //     glm::vec3(-0.005f, 0.0f, 1.0f - 1.1f), // Front one?
+    //     glm::vec3(1.0f, 0.0f, 0.0f - 1.5f), // Right one
+    //     glm::vec3(0.0f, 1.0f, 0.0f - 2.0f), // Top one
+    //     glm::vec3(-1.0f, 0.0f, 0.0f - 2.5f), // Left one
+    //     glm::vec3(0.0f, -1.0f, 0.0f - 2.0f), // Bottom one
+    //     glm::vec3(0.005f, 0.0f, -1.1f - 1.0f)
     // };
+
+    // //Losango position - BACK
+    glm::vec3 pontos_losango[v_losango] = {
+        glm::vec3(-0.005f, 0.0f + 0.5, 1.0 - 1.1f - 3.0), // Front one?
+        glm::vec3(1.0f, 0.0f + 0.5, 0.0f - 1.5f - 3.0), // Right one
+        glm::vec3(0.0f, 1.0f + 0.5, 0.0f - 2.0f - 3.0), // Top one
+        glm::vec3(-1.0f, 0.0f + 0.5, 0.0f - 2.5f - 3.0), // Left one
+        glm::vec3(0.0f, -1.0f + 0.5, 0.0f - 2.0f - 3.0), // Bottom one
+        glm::vec3(0.005f, 0.0f + 0.5, -1.1f - 1.0f - 3.0)
+    };
 
     // Lista com triplas de índices de vértices do losango
     triple vertices_index_losango[t_losango] = {
@@ -238,7 +235,7 @@ int main() {
         triple(4, 1, 5)  
     };
 
-    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, marineBlue, matte);
+    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, blue, glass);
     list[4] = losango_mesh;  // add losango na mesh
 
     // Segunda mesh é uma pirâmide simples
@@ -268,8 +265,8 @@ int main() {
 
 
     // list[6] = new sphere(glm::vec3(0, 4.0, -6), 1.5, white, mirror); // Esfera Espelho Up
-    list[6] = new sphere(glm::vec3(0, 0, -6), 0.5, white, mirror); // Esfera Espelho Front
-    // list[6] = new sphere(glm::vec3(0, 0, -1), 0.5, white, mirror); // Esfera Espelho Front
+    // list[6] = new sphere(glm::vec3(0, 0, -6), 0.5, white, mirror); // Esfera Espelho Front
+    list[6] = new sphere(glm::vec3(0, 0, -3), 0.5, white, mirror); // Esfera Espelho Front
 
     
     // Cria o mundo com a lista de objetos

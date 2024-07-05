@@ -22,13 +22,16 @@ material::material(float ckd,float cka,float cks,float ckr,float ckt,float cn)
     else if (cks < 0) ks = 0;
     else ks = cks;
 
-    // kr : coeficiente de reflexão
-    if (ckr > 1) kr = 1;
-    else if (ckr < 0) kr = 0;
-    else kr = ckr;
+    // // kr : coeficiente de reflexão
+    // if (ckr > 1) kr = 1;
+    // else if (ckr < 0) kr = 0;
+    // else kr = ckr;
+    kr = ckr;
 
     // kt : coeficiente de transmissão
-    if (ckt > 1) kt = 1;
-    else if (ckt < 0) kt = 0;
-    else kt = ckt;
+    // if (ckt > 1) kt = 1;
+    // else if (ckt < 0) kt = 0;
+    // else kt = ckt;
+
+    kt = ckt;
 }
