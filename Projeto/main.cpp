@@ -23,27 +23,31 @@ using std::vector;
 // "matte" significa fosco e sem brilho
 // glossy, com muito brilho
 //                               d     a     s     r     t     n 
-material* matte = new material(0.8f, 0.8f, 0.1f, 0.0f, 0.1f, 10.0f);
+material* matte = new material(0.8f, 0.5f, 0.1f, 0.0f, 0.1f, 10.0f);
 material* glossy = new material(0.9f, 0.1f, 0.9f, 0.8f, 0.0f, 50.0f);
 
-material* glass = new material(0.1f, 0.1f, 0.2f, 0.1f, 0.9f, 10.0f);
+material* glass = new material(0.1f, 0.2f, 0.9f, 0.1f, 0.9f, 1.0f);
+
 material* mirror = new material(0.01f, 0.1f, 0.5f, 1.0f, 0.1f, 10.0f);
 
 
 material* mattePlane = new material(0.2f, 0.1f, 0.1f, 0.0f, 0.0f, 1.0f);
-material* glossyPlane = new material(0.8f, 0.2f, 0.5f, 0.3f, 0.0f, 30.0f);
+material* glossyPlane = new material(0.8f, 0.1f, 0.5f, 0.3f, 0.0f, 30.0f);
 
 
 // Luzes de cena
 // Luz ambiente branca e pontos de luz local
 color white = color(1,1,1);
 
+color dimLightColor = color(0.1,0.1,0.1);
+
+
 color gray = color(0.3,0.3,0.3);
 
 
-Environment* ambientLight = new Environment(color(0.2f, 0.2f, 0.2f));
+Environment* ambientLight = new Environment(color(0.5f, 0.5f, 0.5f));
 
-Light* light_point1 = new Light(glm::vec3(3,0,-2 -1),white);
+Light* light_point1 = new Light(glm::vec3(6,0,-2 -1),white);
 Light* light_point2 = new Light(glm::vec3(-9, 4,-2 -1),white);
 
 
@@ -54,6 +58,9 @@ vector<Light*> scene_lights;
 const color red = glm::vec3(255.99, 0.0, 0.0);
 const color green = glm::vec3(0.0, 255.99, 0.0);
 const color blue = glm::vec3(0.0, 0.0, 255.99);
+
+const color marineBlue = glm::vec3(0.0, 0.0, 120);
+
 
 
 const color whiteMaterial = glm::vec3(255.99, 255.99, 255.99);
@@ -128,11 +135,11 @@ color ray_color(const ray& r, hitable *world, vec3 cam_position, int depth)
     if (world->hit(r, 0.001f, FLT_MAX, rec)) {
         vec3 phong_color = phong(rec, ambientLight->getAmbientLight(), scene_lights, cam_position);
 
-        if (depth < 3) {
-            // Reflexão (Manualmente)
+        if (depth < 5) {
             // vec3 reflected_dir = reflect(normalize(r.direction()), rec.normal);
             // ray reflected_ray(rec.p, reflected_dir);
             // phong_color += rec.kref * ray_color(reflected_ray, world, cam_position, depth + 1);
+            // Reflexão (Manualmente)
             vec3 V = normalize(r.direction());
             vec3 N = rec.normal;
             vec3 reflected_dir = V - 2.0f * glm::dot(V, N) * N;
@@ -199,10 +206,9 @@ int main() {
     int v_losango = 6;  // Quantidade de vértices na mesh
     int t_losango = 8;  // Quantidade de triângulos na mesh
 
-    // Lista de vértices dos triângulos
-
+    // Losango position - FRONT
     glm::vec3 pontos_losango[v_losango] = {
-        glm::vec3(-0.005f, 0.0f, 1.0 - 1.1f), // Front one?
+        glm::vec3(-0.005f, 0.0f, 1.0f - 1.1f), // Front one?
         glm::vec3(1.0f, 0.0f, 0.0f - 1.5f), // Right one
         glm::vec3(0.0f, 1.0f, 0.0f - 2.0f), // Top one
         glm::vec3(-1.0f, 0.0f, 0.0f - 2.5f), // Left one
@@ -210,7 +216,7 @@ int main() {
         glm::vec3(0.005f, 0.0f, -1.1f - 1.0f)
     };
 
-    // Botando losango para ser refletido pela piramide
+    // Losango position - BACK
     // glm::vec3 pontos_losango[v_losango] = {
     //     glm::vec3(-0.005f, 0.0f + 0.5, 1.0 - 1.1f - 3.0), // Front one?
     //     glm::vec3(1.0f, 0.0f + 0.5, 0.0f - 1.5f - 3.0), // Right one
@@ -232,7 +238,7 @@ int main() {
         triple(4, 1, 5)  
     };
 
-    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, blue, glass);
+    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, marineBlue, matte);
     list[4] = losango_mesh;  // add losango na mesh
 
     // Segunda mesh é uma pirâmide simples
@@ -261,7 +267,10 @@ int main() {
     list[5] = triangulos_2;  // Adiciona a segunda malha à lista
 
 
-    list[6] = new sphere(glm::vec3(0, 4.0, -6), 1.5, white, mirror);
+    // list[6] = new sphere(glm::vec3(0, 4.0, -6), 1.5, white, mirror); // Esfera Espelho Up
+    list[6] = new sphere(glm::vec3(0, 0, -6), 0.5, white, mirror); // Esfera Espelho Front
+    // list[6] = new sphere(glm::vec3(0, 0, -1), 0.5, white, mirror); // Esfera Espelho Front
+
     
     // Cria o mundo com a lista de objetos
     hitable* world = new hitable_list(list, 7);
