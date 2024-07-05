@@ -24,9 +24,11 @@ using std::vector;
 // glossy, com muito brilho
 //                               d     a     s     r     t     n 
 material* matte = new material(0.8f, 0.8f, 0.1f, 0.0f, 0.1f, 10.0f);
-material* glossy = new material(0.8f, 0.1f, 0.9f, 0.8f, 0.0f, 50.0f);
+material* glossy = new material(0.9f, 0.1f, 0.9f, 0.8f, 0.0f, 50.0f);
 
-material* glass = new material(0.8f, 0.2f, 0.9f, 0.1f, 0.9f, 0.0f);
+material* glass = new material(0.1f, 0.1f, 0.2f, 0.1f, 0.9f, 10.0f);
+material* mirror = new material(0.01f, 0.1f, 0.5f, 1.0f, 0.1f, 10.0f);
+
 
 material* mattePlane = new material(0.2f, 0.1f, 0.1f, 0.0f, 0.0f, 1.0f);
 material* glossyPlane = new material(0.8f, 0.2f, 0.5f, 0.3f, 0.0f, 30.0f);
@@ -35,7 +37,9 @@ material* glossyPlane = new material(0.8f, 0.2f, 0.5f, 0.3f, 0.0f, 30.0f);
 // Luzes de cena
 // Luz ambiente branca e pontos de luz local
 color white = color(1,1,1);
-color blueColor = color(0,0,1);
+
+color gray = color(0.3,0.3,0.3);
+
 
 Environment* ambientLight = new Environment(color(0.2f, 0.2f, 0.2f));
 
@@ -51,7 +55,11 @@ const color red = glm::vec3(255.99, 0.0, 0.0);
 const color green = glm::vec3(0.0, 255.99, 0.0);
 const color blue = glm::vec3(0.0, 0.0, 255.99);
 
+
+const color whiteMaterial = glm::vec3(255.99, 255.99, 255.99);
 const color slate = glm::vec3(0.5, 0.5, 0.5);
+const color black = glm::vec3(0.01, 0.01, 0.01);
+
 
 
 vec3 phong(hit_record rec, color amb_light, vector<Light*> point_lights, vec3 viewer_pos){
@@ -100,6 +108,18 @@ vec3 phong(hit_record rec, color amb_light, vector<Light*> point_lights, vec3 vi
     return result;
 }
 
+glm::vec3 snells_refract(const glm::vec3& incident, const glm::vec3& normal, float eta) {
+    float cos_i = glm::dot(-incident, normal);
+    float sin2_t = eta * eta * (1.0f - cos_i * cos_i);
+    
+    if (sin2_t > 1.0f) {
+        return glm::vec3(0.0f);
+    }
+    
+    float cos_t = sqrt(1.0f - sin2_t);
+    return eta * incident + (eta * cos_i - cos_t) * normal;
+}
+
 
 // Função para calcular a cor de um raio, dependendo se ele atinge algum objeto no mundo ou não
 color ray_color(const ray& r, hitable *world, vec3 cam_position, int depth)
@@ -109,14 +129,19 @@ color ray_color(const ray& r, hitable *world, vec3 cam_position, int depth)
         vec3 phong_color = phong(rec, ambientLight->getAmbientLight(), scene_lights, cam_position);
 
         if (depth < 3) {
-            // Reflexão
-            vec3 reflected_dir = reflect(normalize(r.direction()), rec.normal);
+            // Reflexão (Manualmente)
+            // vec3 reflected_dir = reflect(normalize(r.direction()), rec.normal);
+            // ray reflected_ray(rec.p, reflected_dir);
+            // phong_color += rec.kref * ray_color(reflected_ray, world, cam_position, depth + 1);
+            vec3 V = normalize(r.direction());
+            vec3 N = rec.normal;
+            vec3 reflected_dir = V - 2.0f * glm::dot(V, N) * N;
             ray reflected_ray(rec.p, reflected_dir);
             phong_color += rec.kref * ray_color(reflected_ray, world, cam_position, depth + 1);
 
-            // Refração (opcional)
+            // Refração (Com Snells Formula)
             if (rec.ktrans > 0.0f) {
-                vec3 refracted_dir = refract(normalize(r.direction()), rec.normal, rec.ktrans);
+                vec3 refracted_dir = snells_refract(normalize(r.direction()), rec.normal, rec.ktrans);
                 ray refracted_ray(rec.p, refracted_dir);
                 phong_color += rec.ktrans * ray_color(refracted_ray, world, cam_position, depth + 1);
             }
@@ -141,7 +166,7 @@ int main() {
     float distance = 0.3f;  // Distância entre a câmera e o plano da imagem
 
     // Cria uma lista de objetos hitable, incluindo duas esferas, dois planos e duas malhas
-    hitable* list[6];
+    hitable* list[7];
 
     //
     Transform transform;
@@ -152,6 +177,7 @@ int main() {
     list[0] = new sphere(transform.applyTransformation(centerRedSphere), 2, red, glossy);
     list[1] = new sphere(glm::vec3(5, -1.0, -6), 2.5, green, glossy);
     list[2] = new plane(glm::vec3(0, 0, -20), glm::vec3(0, 0, 1), slate, mattePlane);
+
 
 
     // Plano afetado pela Transformação Afim
@@ -176,13 +202,23 @@ int main() {
     // Lista de vértices dos triângulos
 
     glm::vec3 pontos_losango[v_losango] = {
-        glm::vec3(0.0f, 0.0f, 1.0f - 1.0f),
+        glm::vec3(-0.005f, 0.0f, 1.0 - 1.1f), // Front one?
         glm::vec3(1.0f, 0.0f, 0.0f - 1.5f), // Right one
         glm::vec3(0.0f, 1.0f, 0.0f - 2.0f), // Top one
-        glm::vec3(-1.0f, 0.0f, 0.0f - 2.5f),
-        glm::vec3(0.0f, -1.0f, 0.0f - 2.0f),
-        glm::vec3(0.0f, 0.0f, -1.0f - 2.0f)
+        glm::vec3(-1.0f, 0.0f, 0.0f - 2.5f), // Left one
+        glm::vec3(0.0f, -1.0f, 0.0f - 2.0f), // Bottom one
+        glm::vec3(0.005f, 0.0f, -1.1f - 1.0f)
     };
+
+    // Botando losango para ser refletido pela piramide
+    // glm::vec3 pontos_losango[v_losango] = {
+    //     glm::vec3(-0.005f, 0.0f + 0.5, 1.0 - 1.1f - 3.0), // Front one?
+    //     glm::vec3(1.0f, 0.0f + 0.5, 0.0f - 1.5f - 3.0), // Right one
+    //     glm::vec3(0.0f, 1.0f + 0.5, 0.0f - 2.0f - 3.0), // Top one
+    //     glm::vec3(-1.0f, 0.0f + 0.5, 0.0f - 2.5f - 3.0), // Left one
+    //     glm::vec3(0.0f, -1.0f + 0.5, 0.0f - 2.0f - 3.0), // Bottom one
+    //     glm::vec3(0.005f, 0.0f + 0.5, -1.1f - 1.0f - 3.0)
+    // };
 
     // Lista com triplas de índices de vértices do losango
     triple vertices_index_losango[t_losango] = {
@@ -196,7 +232,7 @@ int main() {
         triple(4, 1, 5)  
     };
 
-    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, green + red, glass);
+    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, blue, glass);
     list[4] = losango_mesh;  // add losango na mesh
 
     // Segunda mesh é uma pirâmide simples
@@ -221,15 +257,17 @@ int main() {
         triple(1, 3, 4)
     };
 
-    tmesh* triangulos_2 = new tmesh(v_piramide, t_piramide, pontos_piramide, vertices_index_piramide, blue + green, matte);
+    tmesh* triangulos_2 = new tmesh(v_piramide, t_piramide, pontos_piramide, vertices_index_piramide, black, mirror);
     list[5] = triangulos_2;  // Adiciona a segunda malha à lista
+
+
+    list[6] = new sphere(glm::vec3(0, 4.0, -6), 1.5, white, mirror);
     
     // Cria o mundo com a lista de objetos
-    hitable* world = new hitable_list(list, 6);
+    hitable* world = new hitable_list(list, 7);
 
     scene_lights.push_back(light_point1);
     scene_lights.push_back(light_point2);
-
     
     camera cam(origin, lookingat, vup, ny, nx, distance);  // Cria uma câmera
 
