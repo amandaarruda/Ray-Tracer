@@ -114,14 +114,23 @@ vec3 phong(hit_record rec, color amb_light, vector<Light*> point_lights, vec3 vi
 }
 
 glm::vec3 snells_refract(const glm::vec3& incident, const glm::vec3& normal, float eta) {
+    // Pegando ângulo entre vetor de incidência(-1) e normal
     float cos_i = glm::dot(-incident, normal);
+
+    // sen² + cos² = 1 -> senI² = (1 - cosI²)
+    // senT = eta * senI
+    // senT² = eta² * senI²
     float sin2_t = eta * eta * (1.0f - cos_i * cos_i);
     
+    // Caso aconteça, refração total ocorreria (luz "presa"), sendo desconsiderado
     if (sin2_t > 1.0f) {
         return glm::vec3(0.0f);
     }
-    
+
+    // Extraindo cos_T
     float cos_t = sqrt(1.0f - sin2_t);
+
+    // Vetor direção final, escalando, aplicando índice de refração com eta e tendendo a normal
     return eta * incident + (eta * cos_i - cos_t) * normal;
 }
 
@@ -134,14 +143,14 @@ color ray_color(const ray& r, hitable *world, vec3 cam_position, int depth)
         vec3 phong_color = phong(rec, ambientLight->getAmbientLight(), scene_lights, cam_position);
 
         if (depth < 5) {
-            // Reflexão (Manualmente)
+            // Reflexão
             vec3 V = normalize(r.direction());
             vec3 N = rec.normal;
-            vec3 reflected_dir = V - 2.0f * glm::dot(V, N) * N;
+            vec3 reflected_dir = V - 2.0f * glm::dot(V, N) * N; //
             ray reflected_ray(rec.p, reflected_dir);
             phong_color += rec.kref * ray_color(reflected_ray, world, cam_position, depth + 1);
 
-            // Refração (Com Snells Formula)
+            // Refração (Lei de Snells)
             if (rec.ktrans > 0.0f) {
                 vec3 refracted_dir;
                 float eta = rec.ktrans; // Índice de refração
