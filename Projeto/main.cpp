@@ -142,7 +142,7 @@ color ray_color(const ray& r, hitable *world, vec3 cam_position, int depth)
     if (world->hit(r, 0.001f, FLT_MAX, rec)) {
         vec3 phong_color = phong(rec, ambientLight->getAmbientLight(), scene_lights, cam_position);
 
-        if (depth < 5) {
+        if (depth < 2) {
             // Reflexão
             vec3 V = normalize(r.direction());
             vec3 N = rec.normal;
