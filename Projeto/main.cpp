@@ -26,7 +26,7 @@ using std::vector;
 material* matte = new material(0.8f, 0.4f, 0.1f, 0.0f, 0.1f, 1.0f);
 material* glossy = new material(0.9f, 0.4f, 0.9f, 0.8f, 0.0f, 50.0f);
 
-material* glass = new material(0.1f, 0.2f, 0.05f, 0.05f, 1.0f, 1.0f);
+material* glass = new material(0.1f, 0.2f, 0.05f, 0.5f, 1.0f, 1.0f);
 
 material* mirror = new material(0.01f, 0.1f, 0.5f, 1.0f, 0.1f, 10.0f);
 
