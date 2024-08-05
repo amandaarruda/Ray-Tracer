@@ -1,8 +1,9 @@
 #include "./material.h"
 
-material::material() {}
+material::material() 
+    : texture(nullptr) {}
 
-material::material(float ckd,float cka,float cks,float ckr,float ckt,float cn)
+material::material(float ckd,float cka,float cks,float ckr,float ckt,float cn, ImageTexture* tex)
 {
     n = cn; // Inicializa a rugosidade da superfície
 
