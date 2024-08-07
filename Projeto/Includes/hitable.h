@@ -4,11 +4,14 @@
 #include "ray.h"  // Inclui o arquivo de cabeçalho para a classe ray
 #include "color.h"  // Inclui o arquivo de cabeçalho para a classe color
 #include "material.h" // Inclui o arquivo de cabeçalho para a classe material
+#include "texture.h" 
 #include "../../External/glm/glm.hpp"  // Inclui o arquivo de cabeçalho para a biblioteca glm
 
 // Estrutura para armazenar informações sobre o ponto de interseção com um objeto
 struct hit_record {
     float t;  // Parâmetro 't' do raio no ponto de interseção
+    float u;  // Parâmetro 'u' para texturas                                        
+    float v;  // Parâmetro 'v' para texturas
     glm::vec3 p;  // Ponto de interseção
     glm::vec3 normal;  // Vetor normal ao ponto de interseção
     color cor;  // Cor do objeto atingido

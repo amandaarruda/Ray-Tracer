@@ -12,6 +12,7 @@
 #include "./Includes/transform.h"
 #include "./Includes/material.h"
 #include "./Includes/environment.h"
+#include "./Includes/texture.h"
 #include "./Includes/light.h"
 #include <cmath>
 #include "float.h"
@@ -34,6 +35,7 @@ material* mirror = new material(0.01f, 0.1f, 0.5f, 1.0f, 0.1f, 10.0f);
 material* mattePlane = new material(0.2f, 0.4f, 0.1f, 0.0f, 0.0f, 1.0f);
 material* glossyPlane = new material(0.8f, 0.4f, 0.5f, 0.3f, 0.0f, 30.0f);
 
+std::shared_ptr<texture> checker = std::make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
 
 // Luzes de cena
 // Luz ambiente branca e pontos de luz local
@@ -200,7 +202,7 @@ int main() {
     list[1] = new sphere(glm::vec3(0, 0.0, -4), 1.5, blue, glass);
     list[2] = new sphere(glm::vec3(4, 0.0, -4), 1.5, black, mirror);
 
-    list[3] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), slate, glossyPlane);
+    list[3] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), checker, glossyPlane);
 
     
     // Cria o mundo com a lista de objetos
