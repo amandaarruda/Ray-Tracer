@@ -24,7 +24,7 @@ using std::vector;
 // "matte" significa fosco e sem brilho
 // glossy, com muito brilho
 //                               d     a     s     r     t     n 
-material* matte = new material(0.8f, 0.4f, 0.1f, 0.0f, 0.1f, 1.0f);
+material* matte = new material(0.1f, 0.2f, 0.1f, 0.1f, 0.0f, 100.0f);
 material* glossy = new material(0.9f, 0.4f, 0.9f, 0.8f, 1.0f, 50.0f);
 
 material* glass = new material(0.1f, 0.2f, 0.05f, 0.5f, 1.0f, 1.0f);
@@ -36,10 +36,12 @@ material* mattePlane = new material(0.2f, 0.4f, 0.1f, 0.0f, 0.0f, 1.0f);
 material* glossyPlane = new material(0.8f, 0.4f, 0.5f, 0.3f, 0.0f, 30.0f);
 
 std::shared_ptr<texture> checker = std::make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
+std::shared_ptr<texture> solid_white = std::make_shared<solid_color>(color(1, 1, 1));
+
 
 // Luzes de cena
 // Luz ambiente branca e pontos de luz local
-color white = color(1,1,1);
+color white = color(2,2,2);
 
 
 Environment* ambientLight = new Environment(color(0.1f, 0.1f, 0.1f));
@@ -198,15 +200,40 @@ int main() {
 
     glm::vec3 centerRedSphere(5, 1, -6);
 
-    list[0] = new sphere(glm::vec3(-4, 0.0, -4), 1.5, red, matte);
-    list[1] = new sphere(glm::vec3(0, 0.0, -4), 1.5, blue, glass);
-    list[2] = new sphere(glm::vec3(4, 0.0, -4), 1.5, black, mirror);
+    int v_losango = 6;  // Quantidade de vértices na mesh
+    int t_losango = 8;  // Quantidade de triângulos na mesh
 
-    list[3] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), checker, glossyPlane);
+    glm::vec3 pontos_losango[v_losango] = {
+        glm::vec3(0.0f, 0.0f, 1.0f - 1.0f),
+        glm::vec3(1.0f, 0.0f, 0.0f - 1.5f), // Right one
+        glm::vec3(0.0f, 1.0f, 0.0f - 2.0f), // Top one
+        glm::vec3(-1.0f, 0.0f, 0.0f - 2.5f),
+        glm::vec3(0.0f, -1.0f, 0.0f - 2.0f),
+        glm::vec3(0.0f, 0.0f, -1.0f - 2.0f)
+    };
+    // Lista com triplas de índices de vértices do losango
+    triple vertices_index_losango[t_losango] = {
+        triple(0, 1, 2),
+        triple(0, 2, 3),
+        triple(0, 3, 4),
+        triple(0, 4, 1),
+        triple(1, 2, 5),
+        triple(2, 3, 5),
+        triple(3, 4, 5),
+        triple(4, 1, 5)  
+    };
+
+    tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, blue, glass);
+    
+
+    list[0] = new sphere(glm::vec3(0, 0.0, -4), 1.5, checker, matte);
+    list[1] = new sphere(glm::vec3(-4, 0.0, -4), 1.5, solid_white, matte);
+
+    list[2] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), checker, glossyPlane);
 
     
     // Cria o mundo com a lista de objetos
-    hitable* world = new hitable_list(list, 4);
+    hitable* world = new hitable_list(list, 3);
 
     scene_lights.push_back(light_point1);
     scene_lights.push_back(light_point2);
