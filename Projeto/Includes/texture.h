@@ -27,13 +27,13 @@ class solid_color : public texture {
     color albedo;
 };
 
-class checker_texture : public texture {
+class checker_plane_texture : public texture {
   public:
-    checker_texture(double scale, std::shared_ptr<texture> even, std::shared_ptr<texture> odd)
+    checker_plane_texture(double scale, std::shared_ptr<texture> even, std::shared_ptr<texture> odd)
       : inv_scale(1.0 / scale), even(even), odd(odd) {}
 
-    checker_texture(double scale, const color& c1, const color& c2)
-      : checker_texture(scale, std::make_shared<solid_color>(c1), std::make_shared<solid_color>(c2)) {}
+    checker_plane_texture(double scale, const color& c1, const color& c2)
+      : checker_plane_texture(scale, std::make_shared<solid_color>(c1), std::make_shared<solid_color>(c2)) {}
 
     color value(double u, double v, const glm::vec3& p) const override {
         auto xInteger = int(std::floor(inv_scale * p.x));
@@ -43,6 +43,29 @@ class checker_texture : public texture {
         bool isEven = (xInteger + yInteger + zInteger) % 2 == 0;
 
         return isEven ? even->value(u, v, p) : odd->value(u, v, p);
+    }
+
+  private:
+    double inv_scale;
+    std::shared_ptr<texture> even;
+    std::shared_ptr<texture> odd;
+};
+
+class checker_texture : public texture {
+  public:
+    checker_texture(double scale, std::shared_ptr<texture> even, std::shared_ptr<texture> odd)
+      : inv_scale(1.0 / scale), even(even), odd(odd) {}
+
+    checker_texture(double scale, const color& c1, const color& c2)
+      : checker_texture(scale, std::make_shared<solid_color>(c1), std::make_shared<solid_color>(c2)) {}
+
+    color value(double u, double v, const glm::vec3& p) const override {
+          int u2 = int(std::floor(u * inv_scale));
+          int v2 = int(std::floor(v * inv_scale));
+      
+          bool isEven = (u2 + v2) % 2 == 0;
+      
+          return isEven ? even->value(u, v, p) : odd->value(u, v, p);
     }
 
   private:

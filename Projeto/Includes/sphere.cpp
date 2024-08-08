@@ -15,7 +15,7 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const 
             if (temp < t_max && temp > t_min) {
                 rec.t = temp;  // Atualiza o parâmetro 't' do registro de interseção
                 rec.p = r.point_at_parameter(rec.t);  // Calcula o ponto de interseção
-                rec.normal = (rec.p - center) / radius;  // Define o vetor normal ao ponto de interseção
+                rec.normal = glm::normalize((rec.p - center) / radius);  // Define o vetor normal ao ponto de interseção
 
                 // Calcula coordenadas de textura u e v
                 get_sphere_uv(rec.normal, rec.u, rec.v);  

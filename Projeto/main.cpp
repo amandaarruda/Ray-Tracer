@@ -35,9 +35,9 @@ material* mirror = new material(0.01f, 0.1f, 0.5f, 1.0f, 0.1f, 10.0f);
 material* mattePlane = new material(0.2f, 0.4f, 0.1f, 0.0f, 0.0f, 1.0f);
 material* glossyPlane = new material(0.8f, 0.4f, 0.5f, 0.3f, 0.0f, 30.0f);
 
-std::shared_ptr<texture> checker = std::make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
+std::shared_ptr<texture> checker = std::make_shared<checker_texture>(0.05, color(.2, .3, .1), color(.9, .9, .9));
 std::shared_ptr<texture> solid_white = std::make_shared<solid_color>(color(1, 1, 1));
-
+std::shared_ptr<texture> checkerPlane = std::make_shared<checker_plane_texture>(0.32, color(.3, .2, .1), color(.9, .9, .9));
 
 // Luzes de cena
 // Luz ambiente branca e pontos de luz local
@@ -229,7 +229,7 @@ int main() {
     list[0] = new sphere(glm::vec3(0, 0.0, -4), 1.5, checker, matte);
     list[1] = new sphere(glm::vec3(-4, 0.0, -4), 1.5, solid_white, matte);
 
-    list[2] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), checker, glossyPlane);
+    list[2] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), checkerPlane, glossyPlane);
 
     
     // Cria o mundo com a lista de objetos
