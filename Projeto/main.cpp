@@ -17,6 +17,8 @@
 #include <cmath>
 #include "float.h"
 #define M_PI 3.14159265358979323846  // Define a constante M_PI como o valor de pi
+#define STB_IMAGE_IMPLEMENTATION
+#include "./Includes/stb_image.h"
 
 using std::vector;
 
@@ -39,12 +41,20 @@ std::shared_ptr<texture> checker = std::make_shared<checker_texture>(0.05, color
 std::shared_ptr<texture> solid_white = std::make_shared<solid_color>(color(1, 1, 1));
 std::shared_ptr<texture> checkerPlane = std::make_shared<checker_plane_texture>(0.32, color(.3, .2, .1), color(.9, .9, .9));
 
+std::shared_ptr<texture> earth_texture = std::make_shared<image_texture>("./Textures/earth.jpg");
+
+std::shared_ptr<texture> metal_texture = std::make_shared<image_texture>("./Textures/metal.png");
+
+std::shared_ptr<texture> nerd_texture = std::make_shared<image_texture>("./Textures/nerd.png");
+std::shared_ptr<texture> fabric_texture = std::make_shared<image_texture>("./Textures/fabric.png");
+std::shared_ptr<texture> sandstone_texture = std::make_shared<image_texture>("./Textures/sand.png");
+
 // Luzes de cena
 // Luz ambiente branca e pontos de luz local
-color white = color(2,2,2);
+color white = color(3,3,3);
 
 
-Environment* ambientLight = new Environment(color(0.1f, 0.1f, 0.1f));
+Environment* ambientLight = new Environment(color(0.2f, 0.2f, 0.2f));
 
 Light* light_point1 = new Light(glm::vec3(0,1,4),white);
 Light* light_point2 = new Light(glm::vec3(16,1,-16),white);
@@ -202,8 +212,8 @@ color antiAliasing(color pixel_color, float u, float v, int i, int j, int nx, in
 int main() {
     int nx = 500;  // Largura da imagem
     int ny = 500;  // Altura da imagem
-    int ns = 5; // número de amostras para fazer o anti-aliasing / AA. 5 já tem resultados bons, e fica bem liso perto dos 100, a custa de tempo de processamento (ns = number of samples)
-    bool antiAliased = true;
+    int ns = 1; // número de amostras para fazer o anti-aliasing / AA. 5 já tem resultados bons, e fica bem liso perto dos 100, a custa de tempo de processamento (ns = number of samples)
+    bool antiAliased = false;
 
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";  // Imprime o cabeçalho do arquivo PPM
 
@@ -247,14 +257,14 @@ int main() {
     tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, blue, glass);
     
 
-    list[0] = new sphere(glm::vec3(0, 0.0, -4), 1.5, checker, matte);
-    list[1] = new sphere(glm::vec3(-4, 0.0, -4), 1.5, solid_white, matte);
+    list[3] = new sphere(glm::vec3(0, 0, -2.5), 1.5, sandstone_texture, matte);
+    list[1] = new sphere(glm::vec3(-4, 0, -4), 1.5, fabric_texture, matte);
+    list[2] = new sphere(glm::vec3(4, 0, -4), 1.5, checker, matte);
 
-    list[2] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), checkerPlane, glossyPlane);
-
+    list[0] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), checkerPlane, glossyPlane);
     
     // Cria o mundo com a lista de objetos
-    hitable* world = new hitable_list(list, 3);
+    hitable* world = new hitable_list(list, 4);
 
     scene_lights.push_back(light_point1);
     scene_lights.push_back(light_point2);
