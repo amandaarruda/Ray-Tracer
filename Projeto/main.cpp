@@ -196,9 +196,14 @@ int main() {
 
     glm::vec3 centerRedSphere(5, 1, -6);
 
-    list[0] = new sphere(glm::vec3(-4, 0.0, -4), 1.5, red, matte);
-    list[1] = new sphere(glm::vec3(0, 0.0, -4), 1.5, blue, glass);
-    list[2] = new sphere(glm::vec3(4, 0.0, -4), 1.5, black, mirror);
+    list[0] = new sphere(glm::vec3(-3,0, -3), 1, red, matte);
+    static_cast<sphere*>(list[0])->loadTexture("./Projeto/Includes/moon.ppm");
+
+    list[1] = new sphere(glm::vec3(0, 0.0, -2), 1, blue, matte);
+    static_cast<sphere*>(list[1])->loadTexture("./Projeto/Includes/earth.ppm");
+
+    list[2] = new sphere(glm::vec3(3, 0, -3), 1, black, matte);
+    static_cast<sphere*>(list[2])->loadTexture("./Projeto/Includes/mars.ppm");
 
     list[3] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), slate, glossyPlane);
 
