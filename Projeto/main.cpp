@@ -41,20 +41,24 @@ std::shared_ptr<texture> checker = std::make_shared<checker_texture>(0.05, color
 std::shared_ptr<texture> solid_white = std::make_shared<solid_color>(color(1, 1, 1));
 std::shared_ptr<texture> checkerPlane = std::make_shared<checker_plane_texture>(0.32, color(.3, .2, .1), color(.9, .9, .9));
 
-std::shared_ptr<texture> earth_texture = std::make_shared<image_texture>("./Textures/earth.jpg");
+//Texturas para esfera
+std::shared_ptr<texture> earthTexture = std::make_shared<image_texture>("./Textures/earth.jpg");
+std::shared_ptr<texture> metalTexture = std::make_shared<image_texture>("./Textures/metal.png");
+std::shared_ptr<texture> nerdTexture = std::make_shared<image_texture>("./Textures/nerd.png");
+std::shared_ptr<texture> fabricTexture = std::make_shared<image_texture>("./Textures/fabric.png");
+std::shared_ptr<texture> sandstoneTexture = std::make_shared<image_texture>("./Textures/sand.png");
 
-std::shared_ptr<texture> metal_texture = std::make_shared<image_texture>("./Textures/metal.png");
-
-std::shared_ptr<texture> nerd_texture = std::make_shared<image_texture>("./Textures/nerd.png");
-std::shared_ptr<texture> fabric_texture = std::make_shared<image_texture>("./Textures/fabric.png");
-std::shared_ptr<texture> sandstone_texture = std::make_shared<image_texture>("./Textures/sand.png");
+//Texturas para o plano
+std::shared_ptr<texture> nerdTexture_plane = std::make_shared<image_plane_texture>("./Textures/nerd.png");
+std::shared_ptr<texture> metalTexture_plane = std::make_shared<image_plane_texture>("./Textures/metal.png");
+std::shared_ptr<texture> sandstoneTexture_plane = std::make_shared<image_plane_texture>("./Textures/sand.png");
 
 // Luzes de cena
 // Luz ambiente branca e pontos de luz local
 color white = color(3,3,3);
 
 
-Environment* ambientLight = new Environment(color(0.2f, 0.2f, 0.2f));
+Environment* ambientLight = new Environment(color(0.3f, 0.3f, 0.3f));
 
 Light* light_point1 = new Light(glm::vec3(0,1,4),white);
 Light* light_point2 = new Light(glm::vec3(16,1,-16),white);
@@ -257,11 +261,11 @@ int main() {
     tmesh* losango_mesh = new tmesh(v_losango, t_losango, pontos_losango, vertices_index_losango, blue, glass);
     
 
-    list[3] = new sphere(glm::vec3(0, 0, -2.5), 1.5, sandstone_texture, matte);
-    list[1] = new sphere(glm::vec3(-4, 0, -4), 1.5, fabric_texture, matte);
-    list[2] = new sphere(glm::vec3(4, 0, -4), 1.5, checker, matte);
+    list[3] = new sphere(glm::vec3(0, 0, -2.5), 1.5, metalTexture, matte);
+    list[1] = new sphere(glm::vec3(-4, 0, -4), 1.5, fabricTexture, matte);
+    list[2] = new sphere(glm::vec3(4, 0, -4), 1.5, earthTexture, glossy);
 
-    list[0] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), checkerPlane, glossyPlane);
+    list[0] = new plane(glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), sandstoneTexture_plane, mattePlane);
     
     // Cria o mundo com a lista de objetos
     hitable* world = new hitable_list(list, 4);

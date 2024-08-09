@@ -8,7 +8,7 @@ using glm::vec3; // Usando a definição de vetor 3D da GLM
 #include <algorithm> 
 #include <cmath>
 
-#include "stb_image.h"
+#include "rtw_stb_image.h"
 
 class texture {
   public:
@@ -79,55 +79,62 @@ class checker_texture : public texture {
 };
 
 class image_texture : public texture {
-public:
-    image_texture(const std::string& filename)
-    {
-        // Carregar a imagem usando stb_image
-        data = stbi_load(filename.c_str(), &width, &height, &channels, 0);
-        if (!data) {
-            std::cerr << "ERRO: não foi possível dar load na imagem '" << filename << "'." << std::endl;
-            width = height = channels = 0;
-        }
-    }
-
-    ~image_texture() {
-        stbi_image_free(data); // Liberar a memória da imagem
-    }
+  public:
+    image_texture(const char* filename) : image(filename) {}
 
     color value(double u, double v, const glm::vec3& p) const override {
-        // Se a textura não está carregada, retorna uma cor de fallback
-        if (data == nullptr) {
-            return color(1.0, 0.0, 1.0); // Magenta para indicar erro
-        }
+        // Se não temos textura, retornamos um ciano só para não ficar sem textura.
+        if (image.height() <= 0) return color(0,1,1);
 
-        // Clamping para u e v para evitar extrapolações
-        u = std::fmod(u, 1.0);
-        v = std::fmod(v, 1.0);
-        if (u < 0.0) u += 1.0;
-        if (v < 0.0) v += 1.0;
+        u = glm::clamp(u, 0.0, 1.0);
+        v = 1.0 - glm::clamp(v, 0.0, 1.0);  // Flip V to image coordinates
 
-        // Conversão de coordenadas UV para coordenadas de pixel i e j
-        // O valor 0.001 subtraído no cálculo de j é para evitar a situação em que v 
-        // resulta exatamente na borda superior da imagem, o que poderia causar um problema de arredondamento.
-        int i = static_cast<int>(u * width);
-        int j = static_cast<int>((1 - v) * height - 0.001);
+        // Convertemos coordenadas de textura a índices de pixel de imagem
+        auto i = int(u * image.width());
+        auto j = int(v * image.height());
+        auto pixel = image.pixel_data(i,j);
 
-        // conter i e j nos limites
-        if (i < 0) i = 0;
-        if (j < 0) j = 0;
-        if (i >= width) i = width - 1;
-        if (j >= height) j = height - 1;
+        // Converter valores de pixel de [0, 255] para [0, 1]
+        auto color_scale = 1.0 / 255.0;
+        return color(color_scale*pixel[0], color_scale*pixel[1], color_scale*pixel[2]);
+    }
 
-        // Calcular a posição no array de dados
-        unsigned char* pixel = data + j * width * channels + i * channels;
+  private:
+    rtw_image image;
+};
 
-        // Retornar a cor normalizada
-        return color(pixel[0] / 255.0, pixel[1] / 255.0, pixel[2] / 255.0);
+class image_plane_texture : public texture {
+public:
+    image_plane_texture(const char* filename) : image(filename) {}
+
+    color value(double u_coord, double v_coord, const glm::vec3& p) const override {
+        // Se não temos textura, retornamos um ciano só para não ficar sem textura.
+        if (image.height() <= 0) return color(0,1,1);
+
+        // Computamos coordenadas UV baseadas no x e y de p
+        double x = p.x;
+        double z = p.z;
+
+        // Normalizar as coordenadas para dentro do range [0,1] 
+        double u = x - std::floor(x);  // Local variable u
+        double v = z - std::floor(z);  // Local variable v
+
+        // clamp e translação no V às coordenadas da imagem
+        v = 1.0 - glm::clamp(v, 0.0, 1.0);
+        u = glm::clamp(u, 0.0, 1.0);
+
+        // Convertemos coordenadas de textura a índices de pixel de imagem
+        auto i = int(u * image.width());
+        auto j = int(v * image.height());
+        auto pixel = image.pixel_data(i, j);
+
+        // Converter valores de pixel de [0, 255] para [0, 1]
+        auto color_scale = 1.0 / 255.0;
+        return color(color_scale * pixel[0], color_scale * pixel[1], color_scale * pixel[2]);
     }
 
 private:
-    unsigned char* data;
-    int width, height, channels;
+    rtw_image image;
 };
 
 
