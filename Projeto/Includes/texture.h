@@ -33,19 +33,23 @@ class solid_color : public texture {
 
 class checker_plane_texture : public texture {
   public:
+    // Construtor que aceita um fator de escala e dois ponteiros para texturas (ou cores)
     checker_plane_texture(double scale, std::shared_ptr<texture> even, std::shared_ptr<texture> odd)
       : inv_scale(1.0 / scale), even(even), odd(odd) {}
 
+    // Construtor que aceita um fator de escala e duas cores, e cria texturas sólidas para elas
     checker_plane_texture(double scale, const color& c1, const color& c2)
       : checker_plane_texture(scale, std::make_shared<solid_color>(c1), std::make_shared<solid_color>(c2)) {}
 
+    // Método que retorna a cor baseada na textura de xadrez para as coordenadas fornecidas
     color value(double u, double v, const glm::vec3& p) const override {
+        // Calcular os inteiros x, y e z baseados nas coordenadas do ponto e na escala
         auto xInteger = int(std::floor(inv_scale * p.x));
         auto yInteger = int(std::floor(inv_scale * p.y));
         auto zInteger = int(std::floor(inv_scale * p.z));
 
+        // Determinar se a célula atual é par ou ímpar e retornar a cor baseada nisso
         bool isEven = (xInteger + yInteger + zInteger) % 2 == 0;
-
         return isEven ? even->value(u, v, p) : odd->value(u, v, p);
     }
 
@@ -57,9 +61,11 @@ class checker_plane_texture : public texture {
 
 class checker_texture : public texture {
   public:
+    // Construtor que aceita um fator de escala e dois ponteiros para texturas (ou cores)
     checker_texture(double scale, std::shared_ptr<texture> even, std::shared_ptr<texture> odd)
       : inv_scale(1.0 / scale), even(even), odd(odd) {}
 
+    // Construtor que aceita um fator de escala e duas cores, e cria texturas sólidas para elas
     checker_texture(double scale, const color& c1, const color& c2)
       : checker_texture(scale, std::make_shared<solid_color>(c1), std::make_shared<solid_color>(c2)) {}
 
@@ -67,13 +73,13 @@ class checker_texture : public texture {
           int u2 = int(std::floor(u * inv_scale));
           int v2 = int(std::floor(v * inv_scale));
       
+          // Determinar se a célula atual é par ou ímpar e retornar a cor baseada nisso
           bool isEven = (u2 + v2) % 2 == 0;
-      
           return isEven ? even->value(u, v, p) : odd->value(u, v, p);
     }
 
   private:
-    double inv_scale;
+    double inv_scale; // Inverso da escala, usado para calcular as coordenadas da célula
     std::shared_ptr<texture> even;
     std::shared_ptr<texture> odd;
 };
