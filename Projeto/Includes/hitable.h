@@ -19,6 +19,8 @@ struct hit_record {
     float kref;
     float ktrans;
     float rug;
+
+    glm::vec2 uv; // Coordenadas de textura UV
 };
 
 // Classe abstrata para representar objetos que podem ser atingidos por um raio
