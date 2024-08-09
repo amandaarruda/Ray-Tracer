@@ -180,9 +180,30 @@ color ray_color(const ray& r, hitable *world, vec3 cam_position, int depth)
     return backgroundColor;  // Retorna a cor de fundo se o raio não atingir nenhum objeto
 }
 
+// Função para feature de anti-aliasing
+color antiAliasing(color pixel_color, float u, float v, int i, int j, int nx, int ny, int ns, camera cam, hitable *world, vec3 origin_position, int depth)
+// cor inicial, coordenadas de textura, coordenas de pixel, numero de pixels na horizontal e vertical, amostras por pixel para AA, camera, pos, origem do raio, profundidade da cor do raio 
+{
+    for (int s = 0; s < ns; s++) {
+        // A cada iteração do loop, um número aleatório é gerado e usado para deslocar bem pouquinho as coordenadas de textura u e v.
+        // Simula a captura de múltiplos raios em direções diferentes dentro do mesmo pixel, essencial para o anti-aliasing.
+        float randnum = static_cast<float>(rand()) / (RAND_MAX - 1);
+        float u = (float(i) + randnum) / float(nx);
+        float v = (float(j) + randnum) / float(ny);
+        // Criamos o raio com base na direção determinada pelas coordenadas u e v, para seguir no loop
+        ray r = cam.get_ray(u,v);
+        pixel_color += ray_color(r, world, origin_position, depth);
+    }
+    // calcula-se a cor média da amostra, dividindo a cor acumulada pelo número de amostras
+    pixel_color /= float(ns);
+    return pixel_color;
+}
+
 int main() {
     int nx = 500;  // Largura da imagem
     int ny = 500;  // Altura da imagem
+    int ns = 5; // número de amostras para fazer o anti-aliasing / AA. 5 já tem resultados bons, e fica bem liso perto dos 100, a custa de tempo de processamento (ns = number of samples)
+    bool antiAliased = true;
 
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";  // Imprime o cabeçalho do arquivo PPM
 
@@ -242,14 +263,35 @@ int main() {
     
     camera cam(origin, lookingat, vup, ny, nx, distance);  // Cria uma câmera
 
+    float randnum = static_cast<float>(rand()) / (RAND_MAX - 1);
+
     // Loop para gerar a imagem linha por linha
     for (int j = ny - 1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
-            float u = float(i) / float(nx);  // Coordenada u do pixel normalizada
-            float v = float(j) / float(ny);  // Coordenada v do pixel normalizada
-            ray r = cam.get_ray(u, v);  // Obtém o raio correspondente ao pixel na câmera
-            color pixel_color = ray_color(r, world, cam.get_origin(), 0); // Calcula a cor do raio
-            write_color(std::cout, pixel_color);  // Escreve a cor no arquivo PPM
+            color pixel_color = color(0.0f, 0.0f, 0.0f);
+            float u = 0.0f;
+            float v = 0.0f;
+
+            int max_depth = 3;
+            
+            // antialiasing
+            if (antiAliased == true)
+            {
+                // o output do antialiasing é uma média de pixel_colors que é somado ao pixel_color zerado
+               pixel_color += antiAliasing(pixel_color, float(u), float(v), i, j, nx, ny, ns, cam, world, cam.get_origin(), max_depth);
+               write_color(std::cout, pixel_color);
+            }
+            else
+            {        
+                // a geração linha por linha que usavamos antes
+                float u = float(i) / float(nx);
+                float v = float(j) / float(ny);
+                ray r = cam.get_ray(u, v);
+                glm::vec3 p = r.point_at_parameter(2.0f);
+
+                pixel_color += ray_color(r, world, cam.get_origin(), max_depth);
+                write_color(std::cout, pixel_color);
+            }
         }
     }
 

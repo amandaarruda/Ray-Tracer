@@ -26,9 +26,9 @@ public:
     std::shared_ptr<texture> tex;  // Ponteiro para a textura do plano
 
     static void get_sphere_uv(const glm::vec3& p, float& u, float& v) {
-        // p: a given point on the sphere of radius one, centered at the origin.
-        // u: returned value [0,1] of angle around the Y axis from X=-1.
-        // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+        // p: um dado ponto na esfera de raio 1, centrado na origem.
+        // u: valor retornado [0,1] do ângulo ao redor de Y de X=-1.
+        // v: valor retornado [0,1] do ângulo de Y=-1 até Y=+1.
         //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
         //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
         //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
