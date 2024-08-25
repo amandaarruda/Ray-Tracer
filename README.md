@@ -1,4 +1,7 @@
-# Ray Tracer
+# Ray Tracer - Superfície de Bézier
+
+![Superfície de Bézier](https://github.com/user-attachments/assets/00e7297b-0702-4436-a946-c9d06c0f32b5)
+
 
 Ray-Tracer built for the Graphic Processing course @CIn - UFPE
 
@@ -19,7 +22,7 @@ Este é um simples ray caster implementado em C++ usando a biblioteca glm.
 4. Compile o programa usando o seguinte comando:
 
     ```bash
-    g++ -o ray_tracer Projeto/main.cpp Projeto/Includes/ray.cpp Projeto/Includes/camera.cpp Projeto/Includes/sphere.cpp Projeto/Includes/plane.cpp Projeto/Includes/hitable_list.cpp Projeto/Includes/color.cpp Projeto/Includes/triangle.cpp Projeto/Includes/trianglemesh.cpp Projeto/Includes/transform.cpp Projeto/Includes/light.cpp Projeto/Includes/environment.cpp Projeto/Includes/material.cpp
+    g++ -o ray_tracer Projeto/main.cpp Projeto/Includes/ray.cpp Projeto/Includes/camera.cpp Projeto/Includes/sphere.cpp Projeto/Includes/plane.cpp Projeto/Includes/hitable_list.cpp Projeto/Includes/color.cpp Projeto/Includes/triangle.cpp Projeto/Includes/trianglemesh.cpp Projeto/Includes/transform.cpp Projeto/Includes/light.cpp Projeto/Includes/environment.cpp Projeto/Includes/material.cpp Projeto/Includes/bezier_surface.cpp
 
     ```
 
