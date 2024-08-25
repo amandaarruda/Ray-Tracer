@@ -1,4 +1,7 @@
-# Ray Tracer
+# Ray Tracer - Textura em esferas
+
+![Textura em esferas](https://github.com/user-attachments/assets/56165302-fa64-4bc3-b2ee-11ea8f290d8d)
+
 
 Ray-Tracer built for the Graphic Processing course @CIn - UFPE
 
