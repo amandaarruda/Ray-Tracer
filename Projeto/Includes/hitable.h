@@ -1,10 +1,13 @@
-#ifndef HITABLE_H  // Diretiva de pré-processador para garantir que o arquivo só será incluído uma vez
+#ifndef HITABLE_H
 #define HITABLE_H
 
-#include "ray.h"  // Inclui o arquivo de cabeçalho para a classe ray
-#include "color.h"  // Inclui o arquivo de cabeçalho para a classe color
-#include "material.h" // Inclui o arquivo de cabeçalho para a classe material
-#include "../../External/glm/glm.hpp"  // Inclui o arquivo de cabeçalho para a biblioteca glm
+#include "ray.h"
+#include "color.h"
+#include "material.h"
+#include "../../External/glm/glm.hpp"  
+
+// Declaração da classe bezier_surface
+class bezier_surface;
 
 // Estrutura para armazenar informações sobre o ponto de interseção com um objeto
 struct hit_record {
@@ -28,5 +31,4 @@ public:
     virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const = 0;
 };
 
-#endif 
-
+#endif
